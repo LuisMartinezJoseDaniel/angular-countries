@@ -2,14 +2,19 @@
 <hr />
 <div class="row">
   <div class="col">
+    <!-- (onValue)="searchByCapital($event)" -->
+    <!-- onDebounce evento personalizado para llamar al metodo despues de un determinado tiempo -->
     <shared-search-box
-      (onValue)="searchByCapital($event)"
+      (onDebounce)="searchByCapital($event)"
       placeholder="Buscar por capital"
+      [initialValue]="initialValue"
     ></shared-search-box>
   </div>
 </div>
 <div class="row my-4">
   <div class="col">
+    <hr />
+    <shared-loading-spinner *ngIf="isLoading"></shared-loading-spinner>
     <countries-table [countries]="countries"></countries-table>
   </div>
 </div>

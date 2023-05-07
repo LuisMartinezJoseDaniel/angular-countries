@@ -24,7 +24,18 @@ export class CountriesService {
     },
   };
 
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpClient: HttpClient) {
+    this.loadFromLocalStorage();
+  }
+
+  private saveToLocalStorage() {
+    localStorage.setItem('cacheStore', JSON.stringify(this.cacheStore));
+  }
+
+  private loadFromLocalStorage() {
+    if (!localStorage.getItem('cacheStore')) return;
+    this.cacheStore = JSON.parse(localStorage.getItem('cacheStore')!);
+  }
 
   private getCountriesRequest(url: string): Observable<Country[]> {
     return this.httpClient.get<Country[]>(url).pipe(
@@ -46,7 +57,8 @@ export class CountriesService {
     const url = `${this.apiUrl}/capital/${q}`;
     return this.getCountriesRequest(url).pipe(
       //tap No modifica la data del observable, en este caso solo se usa para asignar al cacheStore
-      tap((countries) => (this.cacheStore.byCapital = { term: q, countries }))
+      tap((countries) => (this.cacheStore.byCapital = { term: q, countries })),
+      tap((countries) => this.saveToLocalStorage()) //guardar en local storage
     );
   }
 
@@ -58,14 +70,16 @@ export class CountriesService {
       tap(
         (countries) =>
           (this.cacheStore.byCountries = { term: country, countries })
-      )
+      ),
+      tap((countries) => this.saveToLocalStorage())
     );
   }
   searchRegion(region: Region): Observable<Country[]> {
     const url = `${this.apiUrl}/region/${region}`;
 
     return this.getCountriesRequest(url).pipe(
-      tap((countries) => (this.cacheStore.byRegion = { region, countries }))
+      tap((countries) => (this.cacheStore.byRegion = { region, countries })),
+      tap((countries) => this.saveToLocalStorage())
     );
   }
 }
